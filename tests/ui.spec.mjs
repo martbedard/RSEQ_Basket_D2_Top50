@@ -9,6 +9,15 @@ test("la fiche reprend les paniers et lancers francs réussis du classement", as
   const row = page.getByRole("row").filter({ hasText: "Christ-Ariel Oulaï" });
   await row.getByRole("button").click();
   const dialog = page.getByRole("dialog");
+  await expect(dialog.locator("dt")).toHaveText([
+    "Points par match",
+    "Points",
+    "Matchs joués",
+    "Tirs à deux points réussis (LR 2)",
+    "Tirs à trois points réussis (LR 3)",
+    "Lancers francs réussis (LFR)",
+    "Réussite aux lancers francs",
+  ]);
   for (const [key, label] of [
     ["m2", "Tirs à deux points réussis (LR 2)"],
     ["m3", "Tirs à trois points réussis (LR 3)"],

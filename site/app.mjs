@@ -34,13 +34,9 @@ function profile(p) {
     ["points", "Points"],
     ["games", "Matchs joués"],
     ["m2", "Tirs à deux points réussis (LR 2)"],
-    ["pct2", "Réussite à 2 points"],
     ["m3", "Tirs à trois points réussis (LR 3)"],
-    ["pct3", "Réussite à 3 points"],
     ["ft", "Lancers francs réussis (LFR)"],
     ["pctft", "Réussite aux lancers francs"],
-    ["rebounds", "Rebonds totaux"],
-    ["rpg", "Rebonds par match"],
   ];
   $("profile-stats").replaceChildren(
     ...stats.map(([key, label]) => {
