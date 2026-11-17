@@ -1,6 +1,22 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
+test("les fiches de Limoilou chargent les portraits par numéro de maillot", async ({ page }) => {
+  const archive = new URL("../archives/2026-11.json", import.meta.url);
+  const data = JSON.parse(await readFile(archive, "utf8"));
+  await page.route("**/data.json", (route) => route.fulfill({ json: data }));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Tous", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  for (const player of data.players.filter((p) => p.team === "Limoilou")) {
+    await page.getByRole("button", { name: player.name, exact: true }).click();
+    const portrait = dialog.getByRole("img", { name: player.name, exact: true });
+    await expect(portrait).toBeVisible();
+    await expect(portrait).toHaveAttribute("src", `./portraits/limoilou/2026-27/${player.number}.jpg`);
+    await dialog.getByRole("button", { name: "Fermer la fiche" }).click();
+  }
+});
+
 test("portrait à l’ouverture, changement de joueur et photo indisponible", async ({ page }) => {
   const archive = new URL("../archives/2026-11.json", import.meta.url);
   const data = JSON.parse(await readFile(archive, "utf8"));

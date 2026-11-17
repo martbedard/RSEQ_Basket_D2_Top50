@@ -49,6 +49,35 @@ export const portraits = {
   // Édouard Giroux
   "52dddad2-4220-48ba-b961-92eb2b286380":
     "https://dynamiques.csfoy.ca/fileadmin/_processed_/9/f/csm_giroux_edouard_e8939fd687.jpg",
+  // Limoilou · https://www.cegeplimoilou.ca/equipe/titans-basketball-masculin-d2/
+  // #0 Matti Remicourt-Said Ahamed
+  "ab740326-f49e-468c-9231-2c0c25a012c7": "./portraits/limoilou/2026-27/0.jpg",
+  // #2 Mamadou Kaly Bah
+  "8f8f6f72-1065-4cbe-8909-cb7a12fe4e5f": "./portraits/limoilou/2026-27/2.jpg",
+  // #3 Bonaventure-Mmeni Chakabuta
+  "e643e083-78a9-48e5-a0ad-be589f2c2a15": "./portraits/limoilou/2026-27/3.jpg",
+  // #4 Xavier Marceau
+  "69112eb2-1396-45a6-9423-361f488b7bbb": "./portraits/limoilou/2026-27/4.jpg",
+  // #5 Henri Gagnon
+  "c06eb130-6e04-4395-b797-44f03d047d39": "./portraits/limoilou/2026-27/5.jpg",
+  // #7 Loïc Bussière
+  "33d7b8d5-2b00-4c4a-a694-596a97f06ce3": "./portraits/limoilou/2026-27/7.jpg",
+  // #8 Isaac Gingras
+  "2d2634a5-6184-40de-a5d2-d96bb75e60d4": "./portraits/limoilou/2026-27/8.jpg",
+  // #9 Frédéric Corriveau
+  "80091d8b-9f1b-45e9-8c5e-a8215d9d0ab2": "./portraits/limoilou/2026-27/9.jpg",
+  // #10 Christ-Ariel Oulaï
+  "85d7297e-d6c3-4a7e-ae2e-02c33ec7961d": "./portraits/limoilou/2026-27/10.jpg",
+  // #11 Thomas Anctil
+  "e7c291b4-276c-488b-b359-2a04e8882020": "./portraits/limoilou/2026-27/11.jpg",
+  // #12 Maïkan St-Onge
+  "45eb77c9-1c58-4c50-903f-3651044a55b6": "./portraits/limoilou/2026-27/12.jpg",
+  // #13 Pavel-William Bastien
+  "482e8375-a781-435a-b249-3e3383adabb2": "./portraits/limoilou/2026-27/13.jpg",
+  // #14 Jacob Denis
+  "e8c6cdbf-979f-4226-9118-e303f56aa2ea": "./portraits/limoilou/2026-27/14.jpg",
+  // #15 François Lord
+  "158ac387-ab81-4c6e-a94c-dea3b4985808": "./portraits/limoilou/2026-27/15.jpg",
   // Rimouski · https://www.sportsrimouski.com/sports/alignement-basketball-masculin
   // Bilal Bettahar
   "25534c09-49cc-4048-928b-56a7eb802535":

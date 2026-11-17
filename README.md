@@ -20,6 +20,8 @@ Les huit correspondances entre identifiants et noms vérifiées auprès du RSEQ 
 
 La fiche charge le portrait à l’ouverture. Les photos proviennent des alignements de [Sainte-Foy](https://dynamiques.csfoy.ca/equipes/basketball-m-d2/), de [Rimouski](https://www.sportsrimouski.com/sports/alignement-basketball-masculin) et de [Champlain–St. Lawrence](https://slc.qc.ca/fr/sports/basketball-m-d2/). Pour ajouter un portrait, vérifier le nom et l’équipe sur l’alignement du cégep, puis associer l’URL de l’image à l’identifiant RSEQ du joueur dans `site/portraits.mjs`.
 
+Les portraits de Limoilou sont recadrés à partir de la photo d’équipe 2026-2027. Les numéros de maillot correspondent aux identifiants de la fiche RSEQ. Le ballon cache le numéro de Xavier Marceau (4), déduit par élimination. Le portrait du numéro 6 est conservé dans `site/portraits/limoilou/2026-27/6.jpg` en attendant son identifiant RSEQ. [Photo d’équipe du cégep](https://www.cegeplimoilou.ca/equipe/titans-basketball-masculin-d2/) · [Effectif RSEQ](https://s1.rseq.ca/api/TeamApi/GetTeamDiffusion/?teamId=dcbfbcb3-6d8f-4e6a-bb19-ad39463afef6)
+
 ## Exécuter localement
 
 Python 3.10+ suffit à produire et servir le site. Node.js 22+ et npm servent aux tests de l’interface.
