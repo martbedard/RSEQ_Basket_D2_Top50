@@ -71,5 +71,5 @@ export function csv(rows) {
   );
 }
 export function stale(updated, now = Date.now()) {
-  return now - Date.parse(updated) >= 60 * 60 * 1000;
+  return now - Date.parse(updated) >= 2 * 60 * 60 * 1000;
 }

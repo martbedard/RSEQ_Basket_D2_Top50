@@ -205,4 +205,4 @@ async function load() {
 }
 load();
 setInterval(freshness, 60000);
-setInterval(load, 15 * 60000);
+setInterval(load, 60 * 60000);

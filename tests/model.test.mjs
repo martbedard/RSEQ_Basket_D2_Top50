@@ -31,8 +31,8 @@ test("CSV Excel, BOM, échappement des guillemets et des formules", () => {
   assert.ok(result.includes('"\'=TEST(""A"")"'));
   assert.ok(result.includes('"12,0"'));
 });
-test("avertissement à partir de 60 minutes", () => {
+test("avertissement à partir de deux heures", () => {
   const t = "2026-11-17T10:00:00Z";
-  assert.equal(stale(t, Date.parse(t) + 3599999), false);
-  assert.equal(stale(t, Date.parse(t) + 3600000), true);
+  assert.equal(stale(t, Date.parse(t) + 7_199_999), false);
+  assert.equal(stale(t, Date.parse(t) + 7_200_000), true);
 });
