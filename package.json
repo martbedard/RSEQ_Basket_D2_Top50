@@ -1,0 +1,11 @@
+{
+  "name": "rseq-basket-d2",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/model.test.mjs",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}

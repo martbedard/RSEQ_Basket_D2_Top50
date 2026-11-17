@@ -1,0 +1,4 @@
+__pycache__/
+site/data.json
+node_modules/
+test-results/

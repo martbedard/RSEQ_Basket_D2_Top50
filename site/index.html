@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#132f2b"><meta name="description" content="Classement des marqueurs du basketball collégial masculin D2 du RSEQ, conférence Nord-Est, saison 2026-2027.">
+<title>RSEQ Basketball D2 · Top 50 Nord-Est</title>
+<link rel="stylesheet" href="./style.css"><script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<header><div class="wrap bar"><a class="brand" href="./"><i class="ball" aria-hidden="true"></i>RSEQ Basketball D2</a><a class="official" href="https://www.rseq-stats.ca/collegial/ne/basketball-m-d2/">Source officielle <span aria-hidden="true">↗</span></a></div></header>
+<main class="wrap">
+<section class="hero" aria-labelledby="title">
+<div class="court" aria-hidden="true"><i></i></div>
+<div class="hero-copy"><p class="overline">Basketball collégial masculin · D2</p>
+<h1 id="title">Top 50 des marqueurs</h1><p class="subtitle">Nord-Est <span>/</span> 2026-2027</p></div>
+<div class="leader" id="leader" hidden><span class="overline">Meilleur marqueur</span><strong id="leader-name"></strong><span id="leader-line"></span></div>
+</section>
+<div class="metrics"><div><strong id="teams">—</strong> équipes intégrées</div><div><strong id="eligible">—</strong> joueurs admissibles</div><div class="sync"><span id="fresh">Chargement</span> <time id="updated"></time></div></div>
+<section class="ranking" aria-labelledby="ranking">
+<div class="section-title"><h2 id="ranking">Classement général</h2><button type="button" id="csv" disabled><span aria-hidden="true">↓</span> Exporter en CSV</button></div>
+<div class="toolbar"><div class="tabs" role="group" aria-label="Étendue du classement"><button data-limit="10">Top 10</button><button data-limit="25">Top 25</button><button data-limit="50" aria-pressed="true">Top 50</button><button data-limit="all">Tous</button></div>
+<div class="inputs"><label><span class="sr">Rechercher un joueur</span><input id="search" type="search" placeholder="Rechercher un joueur…" autocomplete="off"></label><label><span class="sr">Filtrer par équipe</span><select id="team"><option value="">Toutes les équipes</option></select></label></div></div>
+<p class="sr" aria-live="polite" id="results"></p>
+<div class="scroll" tabindex="0" role="region" aria-label="Tableau des marqueurs, défilement horizontal">
+<table><thead><tr id="head"></tr></thead><tbody id="body"></tbody></table>
+</div>
+<p class="notice" role="status" id="notice">Chargement du classement…</p>
+<div class="footnote"><span>Admissibilité ≥ 50 % des matchs de l’équipe</span><span>— donnée indisponible</span></div>
+</section>
+<details class="sources"><summary>Sources et méthode de classement</summary><p>Les statistiques proviennent des fiches de saison régulière du RSEQ. Le rang général utilise les points divisés par les matchs joués, avant arrondi. À égalité, le total de points, puis les matchs joués, le nom et l’identifiant de l’athlète départagent les joueurs.</p><p>Top 10, 25 et 50 désignent les rangs généraux. Choisissez « Tous » pour rechercher dans l’ensemble des joueurs admissibles. Sélectionnez un nom pour consulter ses statistiques de tir et de rebonds.</p><ul id="sources"></ul></details>
+</main>
+<footer class="wrap"><span>RSEQ Basketball D2</span><span>Classement indépendant · Données du RSEQ</span></footer>
+<dialog id="profile"><form method="dialog"><button aria-label="Fermer la fiche" autofocus>Fermer ×</button></form><p class="overline" id="profile-team"></p><h2 id="profile-name"></h2><dl id="profile-stats"></dl></dialog>
+</body></html>

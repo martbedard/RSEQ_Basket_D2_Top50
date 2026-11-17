@@ -1,0 +1,53 @@
+# RSEQ Basketball D2
+
+[Consulter le classement](https://martbedard.github.io/RSEQ_Basket_D2_Top50/) · [Exécutions GitHub Actions](https://github.com/martbedard/RSEQ_Basket_D2_Top50/actions/workflows/classement.yml) · [Calendrier officiel RSEQ](https://www.rseq-stats.ca/collegial/ne/basketball-m-d2/)
+
+Classement indépendant des marqueurs du collégial masculin D2, conférence Nord-Est, section QCA-EDQ-SLSJ, saison régulière 2026-2027. Le Top 50 s’ouvre par défaut. Les filtres et tris conservent le rang général. L’option **Tous** donne accès à chaque joueur admissible. L’export CSV reprend exactement les lignes affichées, avec un séparateur point-virgule, une virgule décimale et un BOM UTF-8 pour Excel.
+
+## Sources et calculs
+
+Les huit correspondances entre identifiants et noms vérifiées auprès du RSEQ figurent dans `config/teams.json`. Le client interroge `https://s1.rseq.ca/api/TeamApi/GetTeamDiffusion/?teamId=…`. Il contrôle la ligue, la saison, le sport, la catégorie, les équipes, les effectifs et les nombres de matchs. Les noms et statistiques publiés proviennent de `LeagueBasketballStats`. Seules les données utiles au classement quittent le traitement.
+
+- **MJ d’équipe** provient de la ligne `Standings` de l’équipe et de la ligue pour `SeasonType == 1` (saison régulière). Chaque ligne individuelle doit confirmer ce total dans `TeamGames`.
+- **Admissibilité** exige au moins un match joué et `2 × MJ du joueur ≥ MJ de l’équipe`. Trois matchs d’équipe exigent donc deux apparitions. Le site officiel indique ce minimum dans l’en-tête du tableau et son API peut aussi renvoyer des joueurs sous le seuil.
+- **Rang** utilise la fraction exacte `TotalPoints / GamesPlayed`. À égalité viennent les points totaux décroissants, les MJ décroissants, le nom complet en ordre Unicode sans distinction de casse, puis l’identifiant. Les moyennes affichées ont une décimale. Un identifiant dupliqué bloque la publication.
+- **Standard** utilise les champs numériques `FieldGoals{2,3}Made` et `FieldGoals{2,3}Attemped`. L’orthographe « Attemped » appartient à l’API. Les huit équipes utilisaient cette méthode lors de la mise en service.
+- **Hudl** présente les colonnes LR, LT, LR 3 et LT 3. Les champs préfixés `FieldThrows2` correspondent à tous les tirs de champ. Les paniers ou tentatives à deux points sont obtenus en soustrayant les trois points de leur total respectif. Les contrôles vérifient les bornes, le total de points et la moyenne officielle. Le test Hudl est synthétique.
+- **Valeurs manquantes**. Les tentatives et rebonds dont la valeur numérique est zéro et la cellule officielle vide sont affichés par un tiret. Le calcul d’un pourcentage exige un dénominateur connu et positif. Le total de rebonds peut provenir du champ officiel lorsque sa ventilation est indisponible. Les points et les paniers réussis sont contrôlés par l’identité `PTS = 2 × LR 2 + 3 × LR 3 + LFR`.
+- Les feuilles individuelles peuvent être complétées après l’inscription du score d’une équipe. Les totaux individuels reprennent les chiffres diffusés par le RSEQ, sans répartir de points supplémentaires.
+
+## Exécuter localement
+
+Python 3.10+ suffit à produire et servir le site. Node.js 22+ et npm servent aux tests de l’interface.
+
+```sh
+git clone https://github.com/martbedard/RSEQ_Basket_D2_Top50.git
+cd RSEQ_Basket_D2_Top50
+python3 scripts/sync.py
+python3 -m http.server 8000 --directory site
+```
+
+Ouvrir http://localhost:8000. Le HTML, la feuille de style, le JavaScript et la police sont servis par le même site. Les chemins relatifs fonctionnent sous le répertoire de projet GitHub Pages.
+
+```sh
+python3 -m unittest discover -s tests
+npm ci
+npm test
+npx playwright install chromium
+npm run test:browser
+```
+
+Les tests navigateur utilisent le fichier produit par une extraction réelle. Ils couvrent les deux tailles d’écran, les filtres, le tri, le téléchargement CSV, la fiche joueur, le défilement horizontal, le chargement et les pannes. Les réponses simulées de panne restent isolées dans le navigateur de test.
+
+## Actualisation et déploiement
+
+Dans **Settings → Pages → Build and deployment → Source**, sélectionner **GitHub Actions**. Le workflow `classement.yml` utilise les actions officielles de transfert d’artefact et de déploiement. Il s’exécute sur les changements du code de la branche principale, à la demande, et aux minutes 02, 17, 32 et 47 de chaque heure. Les exécutions sont sérialisées. Le navigateur vérifie la date de l’extraction chaque minute et recharge le fichier toutes les quinze minutes.
+
+Le job d’extraction a un accès en lecture. Celui de publication reçoit uniquement les autorisations Pages et OIDC. Après le premier déploiement réussi de chaque mois UTC, un job distinct archive ce JSON dans `archives/AAAA-MM.json`. Ce point de sauvegarde mensuel crée de l’activité dans le dépôt pendant la saison. Les extractions ordinaires utilisent uniquement les artefacts. Une politique de branche interdisant les écritures du robot peut empêcher l’archivage. [Règles de planification de GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+
+## Diagnostic
+
+1. Ouvrir **Actions → Actualiser le classement** puis l’exécution concernée. L’étape d’extraction indique chaque équipe, ses MJ et son nombre de joueurs admissibles. Les erreurs incluent le nom et l’identifiant de l’équipe.
+2. Une requête expire après 20 secondes. En cas de panne réseau ou de réponse illisible, le client réessaie deux fois avec des délais croissants. Une incohérence de saison, d’association, de statistiques ou de couverture interrompt la publication. GitHub Pages conserve le dernier déploiement réussi et son horodatage d’origine.
+3. Une heure après la dernière extraction complète, l’interface indique **Actualisation en retard**. La date est affichée en heure du Québec. Une page servie sans premier fichier de données signale l’attente de la première extraction. Si aucun déploiement n’a encore réussi, GitHub Pages peut renvoyer sa propre page 404.
+4. Le prochain passage réessaie automatiquement. Pour un diagnostic immédiat, utiliser **Run workflow → main**. Une exécution planifiée peut être retardée ou omise par GitHub. Après 60 jours sans activité, GitHub peut désactiver la planification. Le cas échéant, sélectionner **Enable workflow**. Une panne du RSEQ ou de GitHub peut allonger le délai entre deux extractions.
