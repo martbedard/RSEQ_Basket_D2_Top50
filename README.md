@@ -16,6 +16,10 @@ Les huit correspondances entre identifiants et noms vérifiées auprès du RSEQ 
 - **Valeurs manquantes**. Les tentatives et rebonds dont la valeur numérique est zéro et la cellule officielle vide sont affichés par un tiret. Le calcul d’un pourcentage exige un dénominateur connu et positif. Le total de rebonds peut provenir du champ officiel lorsque sa ventilation est indisponible. Les points et les paniers réussis sont contrôlés par l’identité `PTS = 2 × LR 2 + 3 × LR 3 + LFR`.
 - Les feuilles individuelles peuvent être complétées après l’inscription du score d’une équipe. Les totaux individuels reprennent les chiffres diffusés par le RSEQ, sans répartir de points supplémentaires.
 
+## Photos des joueurs
+
+La fiche charge le portrait à l’ouverture. Les photos proviennent des alignements de [Sainte-Foy](https://dynamiques.csfoy.ca/equipes/basketball-m-d2/), de [Rimouski](https://www.sportsrimouski.com/sports/alignement-basketball-masculin) et de [Champlain–St. Lawrence](https://slc.qc.ca/fr/sports/basketball-m-d2/). Pour ajouter un portrait, vérifier le nom et l’équipe sur l’alignement du cégep, puis associer l’URL de l’image à l’identifiant RSEQ du joueur dans `site/portraits.mjs`.
+
 ## Exécuter localement
 
 Python 3.10+ suffit à produire et servir le site. Node.js 22+ et npm servent aux tests de l’interface.

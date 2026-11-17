@@ -1,4 +1,5 @@
 import { columns, display, selectRows, csv, stale } from "./model.mjs";
+import { portraits } from "./portraits.mjs";
 const $ = (id) => document.getElementById(id);
 const state = { limit: "50", search: "", team: "", key: "ppg", direction: -1 };
 let dataset,
@@ -16,6 +17,18 @@ function element(tag, text) {
 function profile(p) {
   $("profile-team").textContent = p.team + " · Rang " + p.rank;
   $("profile-name").textContent = p.name;
+  const portrait = $("profile-portrait");
+  portrait.replaceChildren();
+  portrait.hidden = true;
+  if (portraits[p.id]) {
+    const image = element("img");
+    image.alt = p.name;
+    image.onload = () => {
+      if (image.parentNode === portrait) portrait.hidden = false;
+    };
+    portrait.append(image);
+    image.src = portraits[p.id];
+  }
   const stats = [
     ["ppg", "Points par match"],
     ["points", "Points"],

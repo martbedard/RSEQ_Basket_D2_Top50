@@ -468,6 +468,19 @@ dialog {
 dialog form {
   text-align: right;
 }
+.profile-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+#profile-portrait img {
+  display: block;
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 0.4rem;
+}
 dialog h2 {
   font-size: 2.1rem;
 }

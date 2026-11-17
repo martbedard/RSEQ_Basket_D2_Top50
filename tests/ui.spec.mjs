@@ -1,5 +1,40 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+
+test("portrait à l’ouverture, changement de joueur et photo indisponible", async ({ page }) => {
+  const archive = new URL("../archives/2026-11.json", import.meta.url);
+  const data = JSON.parse(await readFile(archive, "utf8"));
+  await page.route("**/data.json", (route) => route.fulfill({ json: data }));
+  let requests = 0;
+  await page.route("https://dynamiques.csfoy.ca/**", (route) => {
+    requests++;
+    if (!route.request().url().includes("csm_bedard_isaac_")) return route.abort();
+    return route.fulfill({
+      contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"/>',
+    });
+  });
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Tous", exact: true }).click();
+  expect(requests).toBe(0);
+  const dialog = page.getByRole("dialog");
+  await page.getByRole("button", { name: "Isaac Bédard", exact: true }).click();
+  await expect(dialog.getByRole("img", { name: "Isaac Bédard" })).toBeVisible();
+  await dialog.getByRole("button", { name: "Fermer la fiche" }).click();
+
+  await page.getByRole("button", { name: "Yohann Keenania Zabavy" }).click();
+  await expect(dialog.locator("img")).toHaveCount(0);
+  await expect(dialog).toContainText("Points par match");
+  await dialog.getByRole("button", { name: "Fermer la fiche" }).click();
+
+  const failed = page.waitForEvent("requestfailed", (req) => req.url().includes("csm_bolduc_alexis_"));
+  await page.getByRole("button", { name: "Alexis Bolduc" }).click();
+  await failed;
+  await expect(dialog.locator("img")).toBeHidden();
+  await expect(dialog).toContainText("Points par match");
+});
+
 test("classement officiel, sélections, fiche, CSV et défilement", async ({
   page,
   request,
