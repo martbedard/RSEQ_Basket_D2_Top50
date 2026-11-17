@@ -99,3 +99,16 @@ class RankingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,TEAMS[TEAM]):
                 synchronize(path,lambda id: {} if id==TEAM else sample(id))
             self.assertEqual(path.read_bytes(),old)
+
+
+    def test_mixed_standings(self):
+        def changing(team_id):
+            data = sample(team_id)
+            if team_id != TEAM:
+                data['Standings'][0]['GamesPlayed'] += 1
+            return data
+        with tempfile.TemporaryDirectory() as folder:
+            dest = Path(folder) / 'data.json'
+            with self.assertRaisesRegex(ValueError, 'pendant la collecte'):
+                synchronize(dest, changing)
+            self.assertFalse(dest.exists())

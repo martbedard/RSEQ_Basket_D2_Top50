@@ -5,14 +5,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from rseq import ROOT, TEAMS, fetch, normalize, rank, require
+from rseq import LEAGUE, ROOT, TEAMS, fetch, normalize, rank, require
 
 
 def synchronize(destination, reader=fetch):
     teams, players, errors = [], [], []
+    reference_games = None
     for team_id, name in TEAMS.items():
         try:
-            team, eligible = normalize(team_id, reader(team_id))
+            data = reader(team_id)
+            team, eligible = normalize(team_id, data)
+            games = {s['TeamId']: s['GamesPlayed'] for s in data['Standings']
+                     if s['SeasonType'] == 1 and s['LeagueId'] == LEAGUE}
+            if reference_games is None:
+                reference_games = games
+            require(reference_games == games, 'classement modifié pendant la collecte')
             teams.append(team)
             players.extend(eligible)
             print(f"{name} : {team['games']} MJ, {len(eligible)} admissibles", flush=True)
