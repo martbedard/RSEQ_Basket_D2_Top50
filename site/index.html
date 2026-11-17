@@ -8,9 +8,9 @@
       name="description"
       content="Classement des marqueurs du basketball collégial masculin D2 du RSEQ, conférence Nord-Est, saison 2026-2027."
     />
-    <title>RSEQ Basketball D2 · Top 50 Nord-Est</title>
-    <link rel="stylesheet" href="./style.css" />
-    <script type="module" src="./app.mjs?v=2c9de4b2"></script>
+    <title>RSEQ Basketball D2 · Marqueurs Nord-Est</title>
+    <link rel="stylesheet" href="./style.css?v=ec9edc83" />
+    <script type="module" src="./app.mjs?v=abd3c934"></script>
   </head>
   <body>
     <header>
@@ -29,7 +29,7 @@
         <div class="court" aria-hidden="true"><i></i></div>
         <div class="hero-copy">
           <p class="overline">Basketball collégial masculin · D2</p>
-          <h1 id="title">Top 50 des marqueurs</h1>
+          <h1 id="title">Classement des marqueurs</h1>
           <p class="subtitle">Nord-Est <span>/</span> 2026-2027</p>
         </div>
         <div class="leader" id="leader" hidden>
@@ -44,19 +44,13 @@
           <span id="fresh">Chargement</span> <time id="updated"></time>
         </div>
       </div>
-      <section class="ranking" aria-labelledby="ranking">
-        <div class="section-title">
-          <h2 id="ranking">Classement général</h2>
-          <button type="button" id="csv" disabled>
-            <span aria-hidden="true">↓</span> Exporter en CSV
-          </button>
-        </div>
+      <section class="ranking" aria-label="Classement des joueurs">
         <div class="toolbar">
           <div class="tabs" role="group" aria-label="Étendue du classement">
-            <button data-limit="10">Top 10</button
-            ><button data-limit="25">Top 25</button
-            ><button data-limit="50" aria-pressed="true">Top 50</button
-            ><button data-limit="all">Tous</button>
+            <button data-limit="10" aria-pressed="false">Top 10</button
+            ><button data-limit="25" aria-pressed="false">Top 25</button
+            ><button data-limit="50" aria-pressed="false">Top 50</button
+            ><button data-limit="all" aria-pressed="true">Tous</button>
           </div>
           <div class="inputs">
             <label
@@ -73,6 +67,9 @@
               </select></label
             >
           </div>
+          <button type="button" id="csv" disabled>
+            <span aria-hidden="true">↓</span> Exporter en CSV
+          </button>
         </div>
         <p class="sr" aria-live="polite" id="results"></p>
         <div

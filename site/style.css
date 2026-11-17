@@ -75,7 +75,6 @@ header {
 }
 .bar,
 footer,
-.section-title,
 .toolbar,
 .metrics,
 .footnote,
@@ -85,7 +84,6 @@ footer,
   align-items: center;
 }
 .bar,
-.section-title,
 .toolbar,
 .footnote,
 footer {
@@ -298,18 +296,12 @@ h1 {
   border-radius: 0.68rem;
   overflow: hidden;
 }
-.section-title {
-  padding: 1.35rem 1.35rem 0.85rem;
-}
-.section-title h2 {
-  font-size: 2.15rem;
-}
-.section-title button {
+#csv {
   font-size: 0.84rem;
   font-weight: 650;
 }
 .toolbar {
-  padding: 0 1.35rem 1.2rem;
+  padding: 1.35rem 1.35rem 1.2rem;
   flex-wrap: wrap;
 }
 .tabs {
@@ -534,8 +526,7 @@ dd {
     width: 100%;
     margin: 0;
   }
-  .toolbar,
-  .section-title {
+  .toolbar {
     padding-inline: 0.85rem;
   }
   .inputs {
@@ -557,10 +548,7 @@ dd {
     flex: 1;
     min-height: 38px;
   }
-  .section-title h2 {
-    font-size: 1.85rem;
-  }
-  .section-title button {
+  #csv {
     padding: 0.42rem 0.55rem;
   }
   .footnote {

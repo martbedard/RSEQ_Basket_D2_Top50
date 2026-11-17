@@ -86,9 +86,10 @@ test("classement officiel, sélections, fiche, CSV et défilement", async ({
   const data = await (await request.get("/data.json")).json();
   await page.goto("/");
   const rows = page.locator("tbody tr");
-  await expect(rows).toHaveCount(Math.min(50, data.players.length));
+  await expect(page.getByRole("button", { name: "Tous", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(rows).toHaveCount(data.players.length);
   await expect(rows.first()).toContainText(data.players[0].name);
-  for (const n of [10, 25]) {
+  for (const n of [10, 25, 50]) {
     await page.getByRole("button", { name: "Top " + n, exact: true }).click();
     await expect(rows).toHaveCount(Math.min(n, data.players.length));
   }

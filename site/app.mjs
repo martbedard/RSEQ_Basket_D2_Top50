@@ -1,7 +1,7 @@
 import { columns, display, selectRows, csv, stale } from "./model.mjs";
 import { portraits } from "./portraits.mjs";
 const $ = (id) => document.getElementById(id);
-const state = { limit: "50", search: "", team: "", key: "ppg", direction: -1 };
+const state = { limit: "all", search: "", team: "", key: "ppg", direction: -1 };
 let dataset,
   visible = [];
 const dates = new Intl.DateTimeFormat("fr-CA", {
