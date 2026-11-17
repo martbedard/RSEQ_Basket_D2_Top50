@@ -21,7 +21,7 @@ jobs:
     outputs:
       archive: ${{ steps.archive.outputs.path }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Tester les règles et les filtres
@@ -44,13 +44,13 @@ jobs:
           if [ ! -f "archives/$month.json" ]; then
             echo "path=archives/$month.json" >> "$GITHUB_OUTPUT"
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: steps.archive.outputs.path != ''
         with:
           name: sauvegarde
           path: site/data.json
           retention-days: 1
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: site
   deploy:
@@ -65,7 +65,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5.0.1
         id: deployment
   archive:
     if: needs.build.outputs.archive != ''
@@ -74,10 +74,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           ref: main
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: sauvegarde
           path: ${{ runner.temp }}/sauvegarde
