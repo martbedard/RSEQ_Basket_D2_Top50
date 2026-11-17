@@ -1,6 +1,25 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
+test("la fiche reprend les paniers et lancers francs réussis du classement", async ({ page }) => {
+  const archive = new URL("../archives/2026-11.json", import.meta.url);
+  const data = JSON.parse(await readFile(archive, "utf8"));
+  await page.route("**/data.json", (route) => route.fulfill({ json: data }));
+  await page.goto("/");
+  const row = page.getByRole("row").filter({ hasText: "Christ-Ariel Oulaï" });
+  await row.getByRole("button").click();
+  const dialog = page.getByRole("dialog");
+  for (const [key, label] of [
+    ["m2", "Tirs à deux points réussis (LR 2)"],
+    ["m3", "Tirs à trois points réussis (LR 3)"],
+    ["ft", "Lancers francs réussis (LFR)"],
+  ]) {
+    const count = await row.locator(`td[data-key="${key}"]`).innerText();
+    const stat = dialog.locator("dl > div").filter({ has: page.getByText(label, { exact: true }) });
+    await expect(stat.locator("dd")).toHaveText(count);
+  }
+});
+
 test("les fiches de Limoilou chargent les portraits par numéro de maillot", async ({ page }) => {
   const archive = new URL("../archives/2026-11.json", import.meta.url);
   const data = JSON.parse(await readFile(archive, "utf8"));
