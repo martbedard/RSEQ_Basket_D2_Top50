@@ -65,7 +65,9 @@ test("un onglet ouvert affiche la nouvelle extraction dans les cinq minutes", as
   await page.clock.install();
   await page.route("**/data.json", (route) => route.fulfill({ json: data }));
   await page.goto("/");
-  const timestamp = page.locator("#updated");
+  const footerDetails = page.getByRole("contentinfo").locator(".footer-details");
+  await expect(footerDetails).toContainText("Classement indépendant · Données du RSEQ");
+  const timestamp = footerDetails.locator("#updated");
   await expect(timestamp).toHaveAttribute("datetime", data.updated);
   data.updated = new Date(Date.parse(data.updated) + 3600000).toISOString();
   await page.clock.fastForward("05:00");
@@ -263,7 +265,7 @@ test("classement officiel, sélections, fiche, CSV et défilement", async ({
     ).toBeLessThan(100);
   }
 });
-test("chargement, première extraction, erreur et données périmées", async ({
+test("chargement, erreur et affichage d’une ancienne vérification sans avertissement", async ({
   page,
   request,
 }) => {
@@ -290,5 +292,7 @@ test("chargement, première extraction, erreur et données périmées", async ({
   data.updated = "2020-01-01T00:00:00Z";
   await page.route("**/data.json", (route) => route.fulfill({ json: data }));
   await page.reload();
-  await expect(page.locator("#fresh")).toHaveText("Actualisation en retard");
+  await expect(page.locator("#sync-status")).toHaveText("Dernière vérification auprès du RSEQ");
+  await expect(page.locator("#sync-status")).not.toHaveAttribute("data-error");
+  await expect(page.locator("#updated")).toHaveAttribute("datetime", data.updated);
 });

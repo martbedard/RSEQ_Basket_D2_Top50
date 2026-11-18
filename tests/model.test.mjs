@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { csv, display, selectRows, stale } from "../site/model.mjs";
+import { csv, display, selectRows } from "../site/model.mjs";
 const players = [
   { rank: 1, name: "Hélène Test", teamId: "a", ppg: 12.04 },
   { rank: 2, name: "Jean Test", teamId: "b", ppg: 12.01 },
@@ -30,9 +30,4 @@ test("CSV Excel, BOM, échappement des guillemets et des formules", () => {
   assert.ok(result.startsWith('\uFEFF"Rang";"Joueur"'));
   assert.ok(result.includes('"\'=TEST(""A"")"'));
   assert.ok(result.includes('"12,0"'));
-});
-test("avertissement à partir de deux heures", () => {
-  const t = "2026-11-17T10:00:00Z";
-  assert.equal(stale(t, Date.parse(t) + 7_199_999), false);
-  assert.equal(stale(t, Date.parse(t) + 7_200_000), true);
 });

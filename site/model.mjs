@@ -104,6 +104,3 @@ export function csv(rows) {
     "\r\n"
   );
 }
-export function stale(updated, now = Date.now()) {
-  return now - Date.parse(updated) >= 2 * 60 * 60 * 1000;
-}

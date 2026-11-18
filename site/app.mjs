@@ -1,4 +1,4 @@
-import { columns, display, profileStats, profileRanks, selectRows, tableValue, csv, stale } from "./model.mjs?v=f871647f";
+import { columns, display, profileStats, profileRanks, selectRows, tableValue, csv } from "./model.mjs?v=3119ab9c";
 import { portraits } from "./portraits.mjs";
 const $ = (id) => document.getElementById(id);
 const profileDialog = $("profile");
@@ -161,12 +161,6 @@ $("csv").onclick = () => {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 };
-function freshness() {
-  if (!dataset) return;
-  const old = stale(dataset.updated);
-  $("fresh").textContent = old ? "Actualisation en retard" : "À jour";
-  $("fresh").dataset.stale = String(old);
-}
 let loading = false;
 async function load() {
   if (loading) return;
@@ -202,6 +196,8 @@ async function load() {
     );
     $("teams").textContent = teams.length;
     $("eligible").textContent = data.players.length;
+    $("sync-status").textContent = "Dernière vérification auprès du RSEQ";
+    $("sync-status").removeAttribute("data-error");
     $("updated").dateTime = data.updated;
     $("updated").textContent =
       dates.format(new Date(data.updated)) + " (Québec)";
@@ -212,23 +208,21 @@ async function load() {
       teamLink(leader.teamId, leader.team),
       " · " + display("ppg", leader.ppg) + " PTS/MJ",
     );
-    freshness();
     render();
   } catch (error) {
     if (!dataset) {
-      $("fresh").dataset.stale = "true";
-      $("fresh").textContent = "Données indisponibles";
+      $("sync-status").setAttribute("data-error", "");
+      $("sync-status").textContent = "Données indisponibles";
       $("notice").textContent =
         error.message === "404"
           ? "En attente de la première actualisation complète des huit équipes."
           : "Impossible de charger le classement. Une nouvelle tentative aura lieu automatiquement.";
-    } else freshness();
+    }
   } finally {
     loading = false;
   }
 }
 load();
-setInterval(freshness, 60000);
 function loadIfVisible() {
   if (document.visibilityState === "visible") load();
 }

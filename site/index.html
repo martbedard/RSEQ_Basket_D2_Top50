@@ -9,8 +9,8 @@
       content="Classement des marqueurs du basketball collégial masculin D2 du RSEQ, conférence Nord-Est, saison 2026-2027."
     />
     <title>RSEQ Basketball D2 · Marqueurs Nord-Est</title>
-    <link rel="stylesheet" href="./style.css?v=5c35d7ff" />
-    <script type="module" src="./app.mjs?v=e61d070a"></script>
+    <link rel="stylesheet" href="./style.css?v=6523a75d" />
+    <script type="module" src="./app.mjs?v=87ca5e74"></script>
   </head>
   <body>
     <header>
@@ -40,9 +40,6 @@
       <div class="metrics">
         <div><strong id="teams">—</strong> équipes intégrées</div>
         <div><strong id="eligible">—</strong> joueurs admissibles</div>
-        <div class="sync">
-          <span id="fresh">Chargement</span> <time id="updated"></time>
-        </div>
       </div>
       <section class="ranking" aria-label="Classement des joueurs">
         <div class="toolbar">
@@ -112,8 +109,13 @@
       </details>
     </main>
     <footer class="wrap">
-      <span>RSEQ Basketball D2</span
-      ><span>Classement indépendant · Données du RSEQ</span>
+      <span>RSEQ Basketball D2</span>
+      <div class="footer-details">
+        <span>Classement indépendant · Données du RSEQ</span>
+        <div class="sync">
+          <span id="sync-status">Chargement</span> <time id="updated"></time>
+        </div>
+      </div>
     </footer>
     <dialog id="profile" aria-labelledby="profile-name">
       <div class="profile-heading">

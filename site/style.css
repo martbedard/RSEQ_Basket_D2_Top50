@@ -266,10 +266,9 @@ h1 {
   color: var(--ink);
 }
 .sync {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.25rem 0.6rem;
   flex-wrap: wrap;
 }
 .sync span {
@@ -284,10 +283,10 @@ h1 {
   background: #648334;
   margin-right: 0.38rem;
 }
-.sync span[data-stale="true"] {
+.sync span[data-error] {
   color: #a44d0b;
 }
-.sync span[data-stale="true"]:before {
+.sync span[data-error]:before {
   background: #e3872c;
 }
 .ranking {
@@ -455,6 +454,13 @@ footer {
 footer {
   border-top: 1px solid var(--line);
   padding: 1.1rem 0 2rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  row-gap: 0.6rem;
+}
+.footer-details {
+  display: grid;
+  gap: 0.35rem;
 }
 dialog {
   border: 1px solid var(--line);
@@ -549,10 +555,6 @@ dialog h2 {
   .metrics {
     gap: 0.3rem 1rem;
   }
-  .sync {
-    width: 100%;
-    margin: 0;
-  }
   .toolbar {
     padding-inline: 0.85rem;
   }
@@ -596,9 +598,6 @@ dialog h2 {
   .scroll {
     --pin: 3rem;
   }
-  footer {
-    flex-wrap: wrap;
-  }
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -612,7 +611,7 @@ dialog h2 {
     --stripe: #1d2c25;
     --active: #426449;
   }
-  .sync span[data-stale="true"] {
+  .sync span[data-error] {
     color: #ffb979;
   }
 }
