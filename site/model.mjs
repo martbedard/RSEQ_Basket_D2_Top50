@@ -31,6 +31,28 @@ export function display(key, value) {
     ? decimals.format(value)
     : String(value);
 }
+export const profileStats = [
+  ["ppg", "Points par match"],
+  ["points", "Points"],
+  ["games", "Matchs joués"],
+  ["m2", "Paniers à 2 points"],
+  ["m3", "Paniers à 3 points"],
+  ["ft", "Lancers francs réussis"],
+  ["pctft", "Lancers francs (%)"],
+];
+export function profileRanks(players) {
+  const ranks = new Map(players.map(p => [p.id, { ppg: p.rank }]));
+  for (const [key] of profileStats) {
+    if (key === "ppg") continue;
+    const sorted = players.filter(p => p[key] != null).sort((a, b) => b[key] - a[key]);
+    let rank = 0;
+    sorted.forEach((p, i) => {
+      if (i === 0 || p[key] !== sorted[i - 1][key]) rank = i + 1;
+      ranks.get(p.id)[key] = rank;
+    });
+  }
+  return ranks;
+}
 export function selectRows(players, { limit, search, team, key, direction }) {
   const terms = fold(search.trim()).split(/\s+/);
   return players

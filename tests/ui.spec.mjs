@@ -56,25 +56,45 @@ test("la fiche reprend les paniers et lancers francs réussis du classement", as
     "Points par match",
     "Points",
     "Matchs joués",
-    "Tirs à deux points réussis (LR 2)",
-    "Tirs à trois points réussis (LR 3)",
-    "Lancers francs réussis (LFR)",
-    "Réussite aux lancers francs",
+    "Paniers à 2 points",
+    "Paniers à 3 points",
+    "Lancers francs réussis",
+    "Lancers francs (%)",
   ]);
   for (const [key, label] of [
-    ["m2", "Tirs à deux points réussis (LR 2)"],
-    ["m3", "Tirs à trois points réussis (LR 3)"],
-    ["ft", "Lancers francs réussis (LFR)"],
+    ["m2", "Paniers à 2 points"],
+    ["m3", "Paniers à 3 points"],
+    ["ft", "Lancers francs réussis"],
   ]) {
     const count = await row.locator(`td[data-key="${key}"]`).innerText();
     const stat = dialog.locator("dl > div").filter({ has: page.getByText(label, { exact: true }) });
-    await expect(stat.locator("dd")).toHaveText(count);
+    await expect(stat.locator("dd strong")).toHaveText(count);
   }
   const close = dialog.getByRole("button", { name: "Fermer la fiche" });
   const stats = await dialog.locator("dl").boundingBox();
   expect((await close.boundingBox()).y).toBeGreaterThanOrEqual(stats.y + stats.height);
   await close.click();
   await expect(dialog).toBeHidden();
+});
+
+test("les valeurs et les rangs restent alignés dans la fiche après filtrage", async ({ page }) => {
+  const data = JSON.parse(await readFile(new URL("../archives/2026-11.json", import.meta.url), "utf8"));
+  await page.route("**/data.json", route => route.fulfill({ json: data }));
+  await page.goto("/");
+  await page.getByLabel("Rechercher un joueur").fill("Isaac Bédard");
+  await page.getByRole("button", { name: "Isaac Bédard", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.locator("#profile-stats + .rank-legend")).toBeVisible();
+  await expect(dialog.locator(".stat-rank")).toHaveText(
+    [23, 9, 1, 4, 23, 19, 13].map(rank => `Rang (${rank})`),
+  );
+  for (const selector of ["dd strong", ".stat-rank"]) {
+    const edges = await dialog.locator(selector).evaluateAll(nodes =>
+      nodes.map(node => node.getBoundingClientRect().right),
+    );
+    expect(Math.max(...edges) - Math.min(...edges)).toBeLessThan(1);
+  }
+  expect(await dialog.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
 });
 
 test("seul un clic ou un toucher à l’extérieur ferme la fiche", async ({ page, hasTouch }) => {

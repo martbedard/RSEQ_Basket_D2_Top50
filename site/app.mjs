@@ -1,9 +1,10 @@
-import { columns, display, selectRows, csv, stale } from "./model.mjs";
+import { columns, display, profileStats, profileRanks, selectRows, csv, stale } from "./model.mjs?v=c365e7fb";
 import { portraits } from "./portraits.mjs";
 const $ = (id) => document.getElementById(id);
 const profileDialog = $("profile");
 const state = { limit: "all", search: "", team: "", key: "ppg", direction: -1 };
 let dataset,
+  ranks,
   visible = [];
 const dates = new Intl.DateTimeFormat("fr-CA", {
   timeZone: "America/Toronto",
@@ -52,23 +53,22 @@ function profile(p) {
     portrait.append(image);
     image.src = portraits[p.id];
   }
-  const stats = [
-    ["ppg", "Points par match"],
-    ["points", "Points"],
-    ["games", "Matchs joués"],
-    ["m2", "Tirs à deux points réussis (LR 2)"],
-    ["m3", "Tirs à trois points réussis (LR 3)"],
-    ["ft", "Lancers francs réussis (LFR)"],
-    ["pctft", "Réussite aux lancers francs"],
-  ];
   $("profile-stats").replaceChildren(
-    ...stats.map(([key, label]) => {
+    ...profileStats.map(([key, label]) => {
       const item = element("div");
       const unit = key.startsWith("pct") && p[key] != null ? " %" : "";
-      item.append(
-        element("dt", label),
-        element("dd", display(key, p[key]) + unit),
-      );
+      const value = element("dd");
+      value.append(element("strong", display(key, p[key]) + unit));
+      const rank = ranks.get(p.id)[key];
+      if (rank != null) {
+        const note = element("span", `(${rank})`);
+        note.className = "stat-rank";
+        const prefix = element("span", "Rang ");
+        prefix.className = "sr";
+        note.prepend(prefix);
+        value.append(note);
+      }
+      item.append(element("dt", label), value);
       return item;
     }),
   );
@@ -184,6 +184,7 @@ async function load() {
       throw new Error("incomplet");
     if (dataset?.updated === data.updated) return;
     dataset = data;
+    ranks = profileRanks(data.players);
     const teams = [...data.teams].sort((a, b) =>
       a.name.localeCompare(b.name, "fr-CA"),
     );
