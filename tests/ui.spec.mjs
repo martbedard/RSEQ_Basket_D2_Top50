@@ -1,6 +1,37 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
+test("les noms des équipes ouvrent leur fiche RSEQ dans un nouvel onglet", async ({ page, context }) => {
+  const archive = new URL("../archives/2026-11.json", import.meta.url);
+  const data = JSON.parse(await readFile(archive, "utf8"));
+  await page.route("**/data.json", (route) => route.fulfill({ json: data }));
+  const teamUrl = (id) => "https://diffusion.rseq.ca/Default?Type=Team&TeamId=" + id;
+  await context.route("https://diffusion.rseq.ca/**", (route) => route.fulfill({ body: "RSEQ" }));
+  await page.goto("/");
+  await page.locator(".sources summary").click();
+  for (const team of data.teams) {
+    const rowLink = page.locator("tbody").getByRole("link", { name: team.name, exact: true }).first();
+    const sourceLink = page.locator("#sources").getByRole("link", { name: team.name + " · " + team.games + " MJ", exact: true });
+    for (const link of [rowLink, sourceLink]) {
+      await expect(link).toHaveAttribute("href", teamUrl(team.id));
+      await expect(link).toHaveAttribute("target", "_blank");
+    }
+  }
+  const leader = data.players[0];
+  const leaderLink = page.locator("#leader").getByRole("link", { name: leader.team, exact: true });
+  await expect(leaderLink).toHaveAttribute("href", teamUrl(leader.teamId));
+  const popupOpened = page.waitForEvent("popup");
+  await leaderLink.click();
+  const popup = await popupOpened;
+  await expect(popup).toHaveURL(teamUrl(leader.teamId));
+  await popup.close();
+  await page.getByRole("button", { name: leader.name, exact: true }).click();
+  const profileLink = page.getByRole("dialog").getByRole("link");
+  await expect(profileLink).toHaveText(leader.team);
+  await expect(profileLink).toHaveAttribute("href", teamUrl(leader.teamId));
+  await expect(profileLink).toHaveAttribute("target", "_blank");
+});
+
 test("un onglet ouvert affiche la nouvelle extraction dans les cinq minutes", async ({ page, request }) => {
   const data = await (await request.get("/data.json")).json();
   await page.clock.install();

@@ -15,6 +15,13 @@ function element(tag, text) {
   if (text != null) node.textContent = text;
   return node;
 }
+function teamLink(id, name) {
+  const link = element("a", name);
+  link.href = "https://diffusion.rseq.ca/Default?Type=Team&TeamId=" + encodeURIComponent(id);
+  link.target = "_blank";
+  link.rel = "noopener";
+  return link;
+}
 function onBackdrop(event) {
   if (event.target !== profileDialog) return false;
   const { left, right, top, bottom } = profileDialog.getBoundingClientRect();
@@ -30,7 +37,7 @@ profileDialog.addEventListener("click", (event) => {
   pressedOnBackdrop = false;
 });
 function profile(p) {
-  $("profile-team").textContent = p.team + " · Rang " + p.rank;
+  $("profile-team").replaceChildren(teamLink(p.teamId, p.team), " · Rang " + p.rank);
   const number = String(p.number ?? "").trim();
   $("profile-name").textContent = number ? `${p.name} #${number}` : p.name;
   const portrait = $("profile-portrait");
@@ -81,6 +88,8 @@ function render() {
           button.className = "name";
           button.addEventListener("click", () => profile(p));
           cell.append(button);
+        } else if (key === "team") {
+          cell.append(teamLink(p.teamId, p.team));
         } else cell.textContent = display(key, p[key]);
         row.append(cell);
       }
@@ -185,12 +194,8 @@ async function load() {
     $("team").value = state.team;
     $("sources").replaceChildren(
       ...teams.map((t) => {
-        const li = element("li"),
-          a = element("a", t.name + " · " + t.games + " MJ");
-        a.href =
-          "https://diffusion.rseq.ca/Default?Type=Team&TeamId=" +
-          encodeURIComponent(t.id);
-        li.append(a);
+        const li = element("li");
+        li.append(teamLink(t.id, t.name + " · " + t.games + " MJ"));
         return li;
       }),
     );
@@ -202,8 +207,10 @@ async function load() {
     const leader = data.players[0];
     $("leader").hidden = false;
     $("leader-name").textContent = leader.name;
-    $("leader-line").textContent =
-      leader.team + " · " + display("ppg", leader.ppg) + " PTS/MJ";
+    $("leader-line").replaceChildren(
+      teamLink(leader.teamId, leader.team),
+      " · " + display("ppg", leader.ppg) + " PTS/MJ",
+    );
     freshness();
     render();
   } catch (error) {
