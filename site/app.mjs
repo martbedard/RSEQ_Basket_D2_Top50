@@ -1,4 +1,4 @@
-import { columns, display, profileStats, profileRanks, selectRows, csv, stale } from "./model.mjs?v=c365e7fb";
+import { columns, display, profileStats, profileRanks, selectRows, tableValue, csv, stale } from "./model.mjs?v=f871647f";
 import { portraits } from "./portraits.mjs";
 const $ = (id) => document.getElementById(id);
 const profileDialog = $("profile");
@@ -90,7 +90,7 @@ function render() {
           cell.append(button);
         } else if (key === "team") {
           cell.append(teamLink(p.teamId, p.team));
-        } else cell.textContent = display(key, p[key]);
+        } else cell.textContent = display(key, tableValue(p, key));
         row.append(cell);
       }
       return row;

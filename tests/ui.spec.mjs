@@ -1,6 +1,34 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
+test("le rang du tableau et du CSV suit la statistique triée", async ({ page }) => {
+  const data = JSON.parse(await readFile(new URL("../archives/2026-11.json", import.meta.url), "utf8"));
+  await page.route("**/data.json", route => route.fulfill({ json: data }));
+  await page.goto("/");
+  const row = page.getByRole("row").filter({ hasText: "Isaac Bédard" });
+  const rank = row.locator('td[data-key="rank"]');
+  await expect(rank).toHaveText("23");
+  const twos = page.getByRole("button", { name: "Trier par tirs à deux points réussis" });
+  await twos.click();
+  await expect(rank).toHaveText("4");
+  await expect(page.locator("tbody tr").nth(4)).toContainText("Isaac Bédard");
+  const gabriel = page.getByRole("row").filter({ hasText: "Gabriel Gauthier" });
+  await expect(gabriel.locator('td[data-key="rank"]')).toHaveText("4");
+  await expect(page.locator("tbody tr").nth(5).locator('td[data-key="rank"]')).toHaveText("6");
+  await row.getByRole("button").click();
+  const stat = page.getByRole("dialog").locator("dl > div").filter({ hasText: "Paniers à 2 points" });
+  await expect(stat.locator(".stat-rank")).toHaveText("Rang (4)");
+  await page.getByRole("button", { name: "Fermer la fiche" }).click();
+  await twos.click();
+  await page.getByLabel("Rechercher un joueur").fill("Isaac Bédard");
+  await expect(rank).toHaveText("4");
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: /Exporter/ }).click();
+  expect(await readFile(await (await download).path(), "utf8")).toContain('"4";"Isaac Bédard"');
+  await page.getByRole("button", { name: "Trier par points par match" }).click();
+  await expect(rank).toHaveText("23");
+});
+
 test("les noms des équipes ouvrent leur fiche RSEQ dans un nouvel onglet", async ({ page, context }) => {
   const archive = new URL("../archives/2026-11.json", import.meta.url);
   const data = JSON.parse(await readFile(archive, "utf8"));

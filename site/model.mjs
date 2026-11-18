@@ -40,39 +40,48 @@ export const profileStats = [
   ["ft", "Lancers francs réussis"],
   ["pctft", "Lancers francs (%)"],
 ];
+function ranksByValue(players, key) {
+  const values = players.map(p => p[key]).filter(value => value != null);
+  values.sort((a, b) => b - a);
+  const ranks = new Map();
+  values.forEach((value, index) => {
+    if (!ranks.has(value)) ranks.set(value, index + 1);
+  });
+  return ranks;
+}
 export function profileRanks(players) {
   const ranks = new Map(players.map(p => [p.id, { ppg: p.rank }]));
   for (const [key] of profileStats) {
     if (key === "ppg") continue;
-    const sorted = players.filter(p => p[key] != null).sort((a, b) => b[key] - a[key]);
-    let rank = 0;
-    sorted.forEach((p, i) => {
-      if (i === 0 || p[key] !== sorted[i - 1][key]) rank = i + 1;
-      ranks.get(p.id)[key] = rank;
-    });
+    const positions = ranksByValue(players, key);
+    for (const p of players) ranks.get(p.id)[key] = positions.get(p[key]);
   }
   return ranks;
 }
 export function selectRows(players, { limit, search, team, key, direction }) {
   const terms = fold(search.trim()).split(/\s+/);
-  return players
-    .filter(
-      (p) =>
-        (limit === "all" || p.rank <= Number(limit)) &&
-        (!team || p.teamId === team) &&
-        terms.every((term) => fold(p.name).includes(term)),
-    )
-    .sort((a, b) => {
-      if (a[key] == null || b[key] == null)
-        return (
-          Number(a[key] == null) - Number(b[key] == null) || a.rank - b.rank
-        );
-      const delta =
-        typeof a[key] === "number"
-          ? a[key] - b[key]
-          : collator.compare(a[key], b[key]);
-      return direction * delta || a.rank - b.rank;
-    });
+  const statSort = !["ppg", "rank", "name", "team", "number"].includes(key);
+  const compare = (a, b, order) => {
+    if (a[key] == null || b[key] == null)
+      return Number(a[key] == null) - Number(b[key] == null) || a.rank - b.rank;
+    const delta = typeof a[key] === "number"
+      ? a[key] - b[key]
+      : collator.compare(a[key], b[key]);
+    return order * delta || a.rank - b.rank;
+  };
+  const rows = players.filter(
+    (p) =>
+      (limit === "all" || p.rank <= Number(limit)) &&
+      (!team || p.teamId === team) &&
+      terms.every((term) => fold(p.name).includes(term)),
+  );
+  rows.sort((a, b) => compare(a, b, direction));
+  if (!statSort) return rows;
+  const positions = ranksByValue(players, key);
+  return rows.map(p => ({ ...p, tableRank: positions.get(p[key]) ?? null }));
+}
+export function tableValue(player, key) {
+  return key === "rank" && "tableRank" in player ? player.tableRank : player[key];
 }
 export function csv(rows) {
   const escape = (value) => {
@@ -83,7 +92,10 @@ export function csv(rows) {
   const lines = [
     columns.map((c) => c[1]),
     ...rows.map((p) =>
-      columns.map(([k]) => (p[k] == null ? "" : display(k, p[k]))),
+      columns.map(([key]) => {
+        const value = tableValue(p, key);
+        return value == null ? "" : display(key, value);
+      }),
     ),
   ];
   return (

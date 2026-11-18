@@ -2,7 +2,7 @@
 
 [Consulter le classement](https://martbedard.github.io/RSEQ_Basket_D2_Top50/) · [Exécutions GitHub Actions](https://github.com/martbedard/RSEQ_Basket_D2_Top50/actions/workflows/classement.yml) · [Calendrier officiel RSEQ](https://www.rseq-stats.ca/collegial/ne/basketball-m-d2/)
 
-Classement indépendant des marqueurs du collégial masculin D2, conférence Nord-Est, section QCA-EDQ-SLSJ, saison régulière 2026-2027. La vue **Tous** affiche par défaut chaque joueur admissible. Les filtres et tris conservent le rang général. L’export CSV reprend exactement les lignes affichées, avec un séparateur point-virgule, une virgule décimale et un BOM UTF-8 pour Excel.
+Classement indépendant des marqueurs du collégial masculin D2, conférence Nord-Est, section QCA-EDQ-SLSJ, saison régulière 2026-2027. La vue **Tous** affiche par défaut chaque joueur admissible. Le tri par statistique affiche le rang pour cette statistique parmi tous les joueurs admissibles. Les joueurs à égalité pour cette statistique partagent le même rang et sont affichés dans l’ordre du rang général. Les filtres conservent ces rangs et les sélections Top 10, 25 et 50 utilisent le rang général. L’export CSV reprend exactement les lignes affichées, avec un séparateur point-virgule, une virgule décimale et un BOM UTF-8 pour Excel.
 
 ## Sources et calculs
 
