@@ -157,6 +157,7 @@ async function load() {
       !Number.isFinite(Date.parse(data.updated))
     )
       throw new Error("incomplet");
+    if (dataset?.updated === data.updated) return;
     dataset = data;
     const teams = [...data.teams].sort((a, b) =>
       a.name.localeCompare(b.name, "fr-CA"),
@@ -204,4 +205,8 @@ async function load() {
 }
 load();
 setInterval(freshness, 60000);
-setInterval(load, 60 * 60000);
+function loadIfVisible() {
+  if (document.visibilityState === "visible") load();
+}
+setInterval(loadIfVisible, 5 * 60000);
+document.addEventListener("visibilitychange", loadIfVisible);

@@ -47,7 +47,9 @@ Les tests navigateur utilisent le fichier produit par une extraction réelle. Il
 
 ## Actualisation et déploiement
 
-Dans **Settings → Pages → Build and deployment → Source**, sélectionner **GitHub Actions**. Le workflow `classement.yml` utilise les actions officielles de transfert d’artefact et de déploiement. Il s’exécute sur les changements du code de la branche principale, à la demande, et à la minute 17 de chaque heure. Les exécutions sont sérialisées. Le navigateur vérifie la date de l’extraction chaque minute et recharge le fichier une fois par heure.
+Dans **Settings → Pages → Build and deployment → Source**, sélectionner **GitHub Actions**. Le workflow `classement.yml` publie le site après un changement de code sur la branche principale ou sur demande. GitHub prévoit aussi une extraction à la minute 17 de chaque heure. À la minute 47, le workflow `rattrapage.yml` vérifie l’horodatage publié. Si le site ne présente aucune extraction de l’heure UTC en cours et qu’aucune actualisation n’est en cours, il déclenche `classement.yml`. GitHub peut retarder ou omettre l’un ou l’autre passage.
+
+Les publications sont sérialisées. Un onglet visible vérifie les nouvelles données toutes les cinq minutes et dès qu’on y revient. L’indicateur de fraîcheur est recalculé chaque minute.
 
 Le job d’extraction a un accès en lecture. Celui de publication reçoit uniquement les autorisations Pages et OIDC. Après le premier déploiement réussi de chaque mois UTC, un job distinct archive ce JSON dans `archives/AAAA-MM.json`. Ce point de sauvegarde mensuel crée de l’activité dans le dépôt pendant la saison. Les extractions ordinaires utilisent uniquement les artefacts. Une politique de branche interdisant les écritures du robot peut empêcher l’archivage. [Règles de planification de GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
 

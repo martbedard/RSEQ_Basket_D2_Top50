@@ -1,6 +1,18 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
+test("un onglet ouvert affiche la nouvelle extraction dans les cinq minutes", async ({ page, request }) => {
+  const data = await (await request.get("/data.json")).json();
+  await page.clock.install();
+  await page.route("**/data.json", (route) => route.fulfill({ json: data }));
+  await page.goto("/");
+  const timestamp = page.locator("#updated");
+  await expect(timestamp).toHaveAttribute("datetime", data.updated);
+  data.updated = new Date(Date.parse(data.updated) + 3600000).toISOString();
+  await page.clock.fastForward("05:00");
+  await expect(timestamp).toHaveAttribute("datetime", data.updated);
+});
+
 test("la fiche reprend les paniers et lancers francs réussis du classement", async ({ page }) => {
   const archive = new URL("../archives/2026-11.json", import.meta.url);
   const data = JSON.parse(await readFile(archive, "utf8"));
