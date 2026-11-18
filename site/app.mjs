@@ -16,7 +16,8 @@ function element(tag, text) {
 }
 function profile(p) {
   $("profile-team").textContent = p.team + " · Rang " + p.rank;
-  $("profile-name").textContent = p.name;
+  const number = String(p.number ?? "").trim();
+  $("profile-name").textContent = number ? `${p.name} #${number}` : p.name;
   const portrait = $("profile-portrait");
   portrait.replaceChildren();
   portrait.hidden = true;

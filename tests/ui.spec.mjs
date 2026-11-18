@@ -50,6 +50,7 @@ test("les fiches de Limoilou chargent les portraits par numéro de maillot", asy
   const dialog = page.getByRole("dialog");
   for (const player of data.players.filter((p) => p.team === "Limoilou")) {
     await page.getByRole("button", { name: player.name, exact: true }).click();
+    await expect(dialog.getByRole("heading")).toHaveText(`${player.name} #${player.number}`);
     const portrait = dialog.getByRole("img", { name: player.name, exact: true });
     await expect(portrait).toBeVisible();
     await expect(portrait).toHaveAttribute("src", `./portraits/limoilou/2026-27/${player.number}.jpg`);
@@ -60,6 +61,7 @@ test("les fiches de Limoilou chargent les portraits par numéro de maillot", asy
 test("portrait à l’ouverture, changement de joueur et photo indisponible", async ({ page }) => {
   const archive = new URL("../archives/2026-11.json", import.meta.url);
   const data = JSON.parse(await readFile(archive, "utf8"));
+  delete data.players.find((p) => p.name === "Yohann Keenania Zabavy").number;
   await page.route("**/data.json", (route) => route.fulfill({ json: data }));
   let requests = 0;
   await page.route("https://dynamiques.csfoy.ca/**", (route) => {
@@ -76,10 +78,12 @@ test("portrait à l’ouverture, changement de joueur et photo indisponible", as
   expect(requests).toBe(0);
   const dialog = page.getByRole("dialog");
   await page.getByRole("button", { name: "Isaac Bédard", exact: true }).click();
+  await expect(dialog.getByRole("heading")).toHaveText("Isaac Bédard #8");
   await expect(dialog.getByRole("img", { name: "Isaac Bédard" })).toBeVisible();
   await dialog.getByRole("button", { name: "Fermer la fiche" }).click();
 
   await page.getByRole("button", { name: "Yohann Keenania Zabavy" }).click();
+  await expect(dialog.getByRole("heading")).toHaveText("Yohann Keenania Zabavy");
   await expect(dialog.locator("img")).toHaveCount(0);
   await expect(dialog).toContainText("Points par match");
   await dialog.getByRole("button", { name: "Fermer la fiche" }).click();
