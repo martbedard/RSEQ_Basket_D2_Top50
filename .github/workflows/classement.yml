@@ -68,20 +68,25 @@ jobs:
       - uses: actions/deploy-pages@v5.0.1
         id: deployment
   archive:
-    if: needs.build.outputs.archive != ''
     needs: [build, deploy]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - name: Confirmer que la sauvegarde mensuelle existe déjà
+        if: needs.build.outputs.archive == ''
+        run: echo "La sauvegarde de ce mois existe déjà." >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/checkout@v7.0.1
+        if: needs.build.outputs.archive != ''
         with:
           ref: main
       - uses: actions/download-artifact@v8.0.2
+        if: needs.build.outputs.archive != ''
         with:
           name: sauvegarde
           path: ${{ runner.temp }}/sauvegarde
       - name: Archiver une extraction complète par mois
+        if: needs.build.outputs.archive != ''
         env:
           ARCHIVE_PATH: ${{ needs.build.outputs.archive }}
         run: |
