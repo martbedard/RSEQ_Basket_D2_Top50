@@ -46,6 +46,32 @@ test("la fiche reprend les paniers et lancers francs réussis du classement", as
   await expect(dialog).toBeHidden();
 });
 
+test("seul un clic ou un toucher à l’extérieur ferme la fiche", async ({ page, hasTouch }) => {
+  await page.goto("/");
+  const player = page.locator("tbody tr").first().getByRole("button");
+  await player.click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("heading").click();
+  await dialog.click({ position: { x: 8, y: 8 } });
+  await expect(dialog).toBeVisible();
+
+  const { x, y, width } = await dialog.boundingBox();
+  const outsideX = Math.floor(x + width / 2);
+  const outsideY = Math.floor(y - 4);
+  if (hasTouch) {
+    await page.touchscreen.tap(outsideX, outsideY);
+  } else {
+    await page.mouse.move(x + 12, y + 12);
+    await page.mouse.down();
+    await page.mouse.move(outsideX, outsideY);
+    await page.mouse.up();
+    await expect(dialog).toBeVisible();
+    await page.mouse.click(outsideX, outsideY);
+  }
+  await expect(dialog).toBeHidden();
+  await expect(player).toBeFocused();
+});
+
 test("les fiches de Limoilou chargent les portraits par numéro de maillot", async ({ page }) => {
   const archive = new URL("../archives/2026-11.json", import.meta.url);
   const data = JSON.parse(await readFile(archive, "utf8"));

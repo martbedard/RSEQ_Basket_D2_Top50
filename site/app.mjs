@@ -1,6 +1,7 @@
 import { columns, display, selectRows, csv, stale } from "./model.mjs";
 import { portraits } from "./portraits.mjs";
 const $ = (id) => document.getElementById(id);
+const profileDialog = $("profile");
 const state = { limit: "all", search: "", team: "", key: "ppg", direction: -1 };
 let dataset,
   visible = [];
@@ -14,6 +15,20 @@ function element(tag, text) {
   if (text != null) node.textContent = text;
   return node;
 }
+function onBackdrop(event) {
+  if (event.target !== profileDialog) return false;
+  const { left, right, top, bottom } = profileDialog.getBoundingClientRect();
+  return event.clientX < left || event.clientX >= right ||
+    event.clientY < top || event.clientY >= bottom;
+}
+let pressedOnBackdrop = false;
+profileDialog.addEventListener("pointerdown", (event) => {
+  pressedOnBackdrop = onBackdrop(event);
+});
+profileDialog.addEventListener("click", (event) => {
+  if (pressedOnBackdrop && onBackdrop(event)) profileDialog.close();
+  pressedOnBackdrop = false;
+});
 function profile(p) {
   $("profile-team").textContent = p.team + " · Rang " + p.rank;
   const number = String(p.number ?? "").trim();
@@ -50,7 +65,7 @@ function profile(p) {
       return item;
     }),
   );
-  $("profile").showModal();
+  profileDialog.showModal();
 }
 function render() {
   if (!dataset) return;
