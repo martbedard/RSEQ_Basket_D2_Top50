@@ -415,6 +415,13 @@ tbody tr:nth-child(even) td[data-key="ppg"] {
 .name:hover {
   text-decoration: underline;
 }
+@media (hover: none) {
+  .name {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+}
 .footnote,
 .sources,
 footer {
