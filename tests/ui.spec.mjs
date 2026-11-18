@@ -39,6 +39,11 @@ test("la fiche reprend les paniers et lancers francs réussis du classement", as
     const stat = dialog.locator("dl > div").filter({ has: page.getByText(label, { exact: true }) });
     await expect(stat.locator("dd")).toHaveText(count);
   }
+  const close = dialog.getByRole("button", { name: "Fermer la fiche" });
+  const stats = await dialog.locator("dl").boundingBox();
+  expect((await close.boundingBox()).y).toBeGreaterThanOrEqual(stats.y + stats.height);
+  await close.click();
+  await expect(dialog).toBeHidden();
 });
 
 test("les fiches de Limoilou chargent les portraits par numéro de maillot", async ({ page }) => {
