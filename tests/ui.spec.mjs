@@ -29,6 +29,18 @@ test("le rang du tableau et du CSV suit la statistique triée", async ({ page })
   await expect(rank).toHaveText("23");
 });
 
+test("la source officielle s’ouvre dans un nouvel onglet", async ({ page, context }) => {
+  const officialUrl = "https://www.rseq-stats.ca/collegial/ne/basketball-m-d2/";
+  await context.route(officialUrl, (route) => route.fulfill({ body: "RSEQ" }));
+  await page.goto("/");
+  const rankingUrl = page.url();
+  const popupOpened = page.waitForEvent("popup");
+  await page.getByRole("link", { name: "Source officielle", exact: true }).click();
+  const popup = await popupOpened;
+  await expect(popup).toHaveURL(officialUrl);
+  await expect(page).toHaveURL(rankingUrl);
+});
+
 test("les noms des équipes ouvrent leur fiche RSEQ dans un nouvel onglet", async ({ page, context }) => {
   const archive = new URL("../archives/2026-11.json", import.meta.url);
   const data = JSON.parse(await readFile(archive, "utf8"));
