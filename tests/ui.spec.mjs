@@ -296,3 +296,81 @@ test("chargement, erreur et affichage d’une ancienne vérification sans averti
   await expect(page.locator("#sync-status")).not.toHaveAttribute("data-error");
   await expect(page.locator("#updated")).toHaveAttribute("datetime", data.updated);
 });
+
+test("les sept classements par catégorie et les fiches utilisent les données de la ligue", async ({ page }, info) => {
+  const data = JSON.parse(await readFile(new URL("../archives/2026-11.json", import.meta.url)));
+  await page.route("**/data.json", route => route.fulfill({ json: data }));
+  await page.route("https://dynamiques.csfoy.ca/**", route => route.abort());
+  await page.goto("/#meneurs", { waitUntil: "domcontentloaded" });
+  const groups = page.locator("#boards section");
+  await expect(groups).toHaveCount(3);
+  const stats = [["ppg", "points"], ["m2", "m3"], ["ft", "fta", "pctft"]];
+  for (const [i, keys] of stats.entries()) {
+    const panel = groups.nth(i);
+    for (const key of keys) {
+      const button = panel.locator('[data-stat="' + key + '"]');
+      await button.click();
+      await expect(button).toHaveAttribute("aria-pressed", "true");
+      const expected = data.players.filter(p => p[key] != null && (key !== "pctft" || p.fta > 0))
+        .sort((a, b) => b[key] - a[key] || a.rank - b.rank).slice(0, 10);
+      await expect(panel.locator(".board-player strong")).toHaveText(expected.map(p => p.name));
+      if (key === "pctft") {
+        await expect(panel.locator(".board-value small")).toHaveText(expected.map(p => p.ft + "/" + p.fta));
+      }
+    }
+  }
+  await expect(groups.first().locator('[data-stat="points"]')).toHaveAttribute("aria-pressed", "true");
+  const baskets = groups.nth(1);
+  await baskets.getByRole("button", { name: "LR2", exact: true }).click();
+  const isaac = baskets.locator(".board-row").filter({ hasText: "Isaac Bédard" });
+  await isaac.scrollIntoViewIfNeeded();
+  await expect(isaac.locator(".board-avatar img")).toHaveCount(0);
+  await expect(isaac.locator(".board-avatar")).toHaveText("IB");
+  const first = baskets.locator(".board-row").first();
+  await expect.poll(() => first.locator("img").evaluate(img => img.naturalWidth)).toBeGreaterThan(0);
+  await first.click();
+  await expect(page.getByRole("dialog")).toContainText("Christ-Ariel Oulaï");
+  await page.getByRole("button", { name: "Fermer la fiche" }).click();
+  const left = await groups.first().boundingBox(), next = await baskets.boundingBox();
+  if (info.project.name === "téléphone") {
+    expect(next.y).toBeGreaterThanOrEqual(left.y + left.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  } else {
+    expect(next.y).toBe(left.y);
+    expect(next.x).toBeGreaterThan(left.x);
+  }
+});
+
+test("les liens de vue se copient et la navigation conserve les filtres", async ({ page, context, baseURL }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  const p = (await (await page.request.get("/data.json")).json()).players[0];
+  await page.getByRole("button", { name: "Top 10", exact: true }).click();
+  await page.getByLabel("Filtrer par équipe").selectOption(p.teamId);
+  await page.getByLabel("Rechercher un joueur").fill(p.name);
+  await page.getByRole("button", { name: "Trier par points totaux" }).click();
+  for (const [label, suffix] of [["Toutes les statistiques", ""], ["Meneurs par catégorie", "#meneurs"]]) {
+    const link = page.getByRole("link", { name: label, exact: true });
+    await link.focus();
+    await page.keyboard.press("Enter");
+    await expect(link).toHaveAttribute("aria-current", "page");
+    await page.getByRole("button", { name: "Copier le lien" }).click();
+    await expect(page.locator("#copy-feedback")).toHaveText("Lien copié");
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toBe(baseURL + "/" + suffix);
+    const fresh = await context.newPage();
+    await fresh.goto(copied, { waitUntil: "domcontentloaded" });
+    await expect(fresh.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
+    await fresh.close();
+  }
+  await expect(page.locator("#boards li")).toHaveCount(30);
+  await page.goBack();
+  await expect(page.locator("tbody tr")).toHaveCount(1);
+  await expect(page.getByLabel("Rechercher un joueur")).toHaveValue(p.name);
+  await expect(page.getByLabel("Filtrer par équipe")).toHaveValue(p.teamId);
+  await expect(page.getByRole("button", { name: "Top 10", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('th[data-key="points"]')).toHaveAttribute("aria-sort", "descending");
+  await page.goForward();
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Meneurs par catégorie");
+});

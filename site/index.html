@@ -9,8 +9,8 @@
       content="Classement des marqueurs du basketball collégial masculin D2 du RSEQ, conférence Nord-Est, saison 2026-2027."
     />
     <title>RSEQ Basketball D2 · Marqueurs Nord-Est</title>
-    <link rel="stylesheet" href="./style.css?v=6523a75d" />
-    <script type="module" src="./app.mjs?v=87ca5e74"></script>
+    <link rel="stylesheet" href="./style.css?v=0be31d4f" />
+    <script type="module" src="./app.mjs?v=645834c0"></script>
   </head>
   <body>
     <header>
@@ -41,7 +41,16 @@
         <div><strong id="teams">—</strong> équipes intégrées</div>
         <div><strong id="eligible">—</strong> joueurs admissibles</div>
       </div>
-      <section class="ranking" aria-label="Classement des joueurs">
+      <div class="view-toolbar">
+        <nav aria-label="Vue des statistiques">
+          <a id="all-link" href="./" aria-current="page">Toutes les statistiques</a>
+          <a id="leaders-link" href="#meneurs">Meneurs par catégorie</a>
+        </nav>
+        <button id="copy-view" type="button">Copier le lien</button>
+        <span id="copy-feedback" aria-live="polite"></span>
+        <input id="share-url" aria-label="Lien à copier" readonly hidden />
+      </div>
+      <section id="all-stats" class="ranking" aria-label="Classement des joueurs">
         <div class="toolbar">
           <div class="tabs" role="group" aria-label="Étendue du classement">
             <button data-limit="10" aria-pressed="false">Top 10</button
@@ -90,6 +99,10 @@
           ><span>— donnée indisponible</span>
         </div>
       </section>
+      <section id="leaders-view" aria-label="Meneurs par catégorie" hidden>
+        <p class="notice" role="status" id="leaders-notice">Chargement du classement…</p>
+        <div class="leaderboards" id="boards"></div>
+      </section>
       <details class="sources">
         <summary>Sources et méthode de classement</summary>
         <p>
@@ -104,6 +117,12 @@
           Top 10, 25 et 50 désignent les rangs généraux. Choisissez « Tous »
           pour rechercher dans l’ensemble des joueurs admissibles. Sélectionnez
           un nom pour consulter ses statistiques de tir.
+        </p>
+        <p>
+          Les meneurs par catégorie sont classés parmi tous les joueurs admissibles.
+          Chaque liste présente au plus dix joueurs. En cas d’égalité à la dixième place,
+          le rang général détermine les joueurs affichés. Le pourcentage de lancers
+          francs exige au moins une tentative.
         </p>
         <ul id="sources"></ul>
       </details>

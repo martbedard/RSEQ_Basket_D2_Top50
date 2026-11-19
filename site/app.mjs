@@ -1,4 +1,4 @@
-import { columns, display, profileStats, profileRanks, selectRows, tableValue, csv } from "./model.mjs?v=3119ab9c";
+import { columns, display, profileStats, profileRanks, categoryLeaders, selectRows, tableValue, csv } from "./model.mjs?v=05d10e58";
 import { portraits } from "./portraits.mjs";
 const $ = (id) => document.getElementById(id);
 const profileDialog = $("profile");
@@ -74,6 +74,120 @@ function profile(p) {
   );
   profileDialog.showModal();
 }
+
+function leaderEntry({ player, rank }, key) {
+  const row = element("button");
+  row.className = "board-row";
+  row.onclick = () => profile(player);
+  const initials = player.name.trim().split(/\s+/);
+  const avatar = element("span", initials[0][0] + (initials.length > 1 ? initials.at(-1)[0] : ""));
+  avatar.className = "board-avatar";
+  avatar.setAttribute("aria-hidden", "true");
+  if (portraits[player.id]) {
+    const image = element("img");
+    image.alt = "";
+    image.loading = "lazy";
+    image.onerror = () => image.remove();
+    avatar.append(image);
+    image.src = portraits[player.id];
+  }
+  const identity = element("span");
+  identity.className = "board-player";
+  identity.append(element("strong", player.name), element("small", player.team));
+  const value = element("span", display(key, player[key]));
+  value.className = "board-value";
+  if (key === "pctft") value.append(" %", element("small", player.ft + "/" + player.fta));
+  const position = element("span", rank);
+  position.className = "board-rank";
+  row.append(position, avatar, identity, value);
+  const item = element("li");
+  item.append(row);
+  return item;
+}
+
+const groups = [
+  ["Marqueurs", [["ppg", "PTS/MJ"], ["points", "PTS"]]],
+  ["Paniers réussis", [["m2", "LR2"], ["m3", "LR3"]]],
+  ["Lancers francs", [["ft", "LFR"], ["fta", "LFT"], ["pctft", "% lancers francs"]]],
+];
+const updateBoards = groups.map(([title, stats]) => {
+  const panel = element("section"), controls = element("div"), list = element("ol");
+  const heading = element("h2", title);
+  heading.id = "group-" + stats[0][0];
+  panel.setAttribute("aria-labelledby", heading.id);
+  controls.className = "board-controls";
+  controls.setAttribute("role", "group");
+  controls.setAttribute("aria-label", "Statistique · " + title);
+  const empty = element("p", "Aucune donnée disponible pour cette statistique.");
+  empty.className = "notice";
+  let selected = stats[0][0];
+  function update() {
+    const rows = categoryLeaders(dataset.players, selected);
+    list.replaceChildren(...rows.map(row => leaderEntry(row, selected)));
+    empty.hidden = rows.length > 0;
+    for (const button of controls.children) {
+      button.setAttribute("aria-pressed", String(button.dataset.stat === selected));
+    }
+  }
+  for (const [key, label] of stats) {
+    const button = element("button", label);
+    button.dataset.stat = key;
+    button.onclick = () => { selected = key; update(); };
+    controls.append(button);
+  }
+  panel.append(heading, controls, list, empty);
+  $("boards").append(panel);
+  return update;
+});
+
+function showView() {
+  const leaders = location.hash === "#meneurs";
+  $("all-stats").hidden = leaders;
+  $("leaders-view").hidden = !leaders;
+  $("leader").hidden = leaders || !dataset;
+  $("title").textContent = leaders ? "Meneurs par catégorie" : "Classement des marqueurs";
+  const active = leaders ? $("leaders-link") : $("all-link");
+  const inactive = leaders ? $("all-link") : $("leaders-link");
+  active.setAttribute("aria-current", "page");
+  inactive.removeAttribute("aria-current");
+  $("boards").hidden = !dataset;
+  $("leaders-notice").hidden = Boolean(dataset);
+  $("copy-feedback").textContent = "";
+  $("share-url").hidden = true;
+  if (leaders && dataset) updateBoards.forEach(update => update());
+}
+// Real links also support opening either view in a new tab.
+const base = new URL(location.href);
+base.hash = "";
+$("all-link").href = base.href;
+for (const link of [$("all-link"), $("leaders-link")]) {
+  link.addEventListener("click", event => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    event.preventDefault();
+    if (location.href !== link.href) history.pushState(null, "", link.href);
+    showView();
+  });
+}
+window.addEventListener("hashchange", showView);
+$("copy-view").onclick = async () => {
+  const url = document.querySelector('.view-toolbar [aria-current="page"]').href;
+  try {
+    await navigator.clipboard.writeText(url);
+    if (document.querySelector('.view-toolbar [aria-current="page"]').href === url) {
+      $("share-url").hidden = true;
+      $("copy-feedback").textContent = "Lien copié";
+    }
+  } catch {
+    if (document.querySelector('.view-toolbar [aria-current="page"]').href !== url) return;
+    const field = $("share-url");
+    field.hidden = false;
+    field.value = url;
+    field.select();
+    $("copy-feedback").textContent = "Lien à copier";
+  }
+};
+showView();
+
 function render() {
   if (!dataset) return;
   visible = selectRows(dataset.players, state);
@@ -202,13 +316,13 @@ async function load() {
     $("updated").textContent =
       dates.format(new Date(data.updated)) + " (Québec)";
     const leader = data.players[0];
-    $("leader").hidden = false;
     $("leader-name").textContent = leader.name;
     $("leader-line").replaceChildren(
       teamLink(leader.teamId, leader.team),
       " · " + display("ppg", leader.ppg) + " PTS/MJ",
     );
     render();
+    showView();
   } catch (error) {
     if (!dataset) {
       $("sync-status").setAttribute("data-error", "");
@@ -217,6 +331,7 @@ async function load() {
         error.message === "404"
           ? "En attente de la première actualisation complète des huit équipes."
           : "Impossible de charger le classement. Une nouvelle tentative aura lieu automatiquement.";
+      $("leaders-notice").textContent = $("notice").textContent;
     }
   } finally {
     loading = false;

@@ -49,6 +49,18 @@ function ranksByValue(players, key) {
   });
   return ranks;
 }
+export function categoryLeaders(players, key) {
+  const eligible = players.filter(p =>
+    p[key] != null && (key !== "pctft" || p.fta > 0),
+  );
+  if (key === "ppg") {
+    return eligible.sort((a, b) => a.rank - b.rank).slice(0, 10)
+      .map(player => ({ player, rank: player.rank }));
+  }
+  const positions = ranksByValue(eligible, key);
+  return eligible.sort((a, b) => b[key] - a[key] || a.rank - b.rank)
+    .slice(0, 10).map(player => ({ player, rank: positions.get(player[key]) }));
+}
 export function profileRanks(players) {
   const ranks = new Map(players.map(p => [p.id, { ppg: p.rank }]));
   for (const [key] of profileStats) {
