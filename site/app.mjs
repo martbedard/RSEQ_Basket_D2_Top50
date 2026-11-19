@@ -263,6 +263,7 @@ $("search").oninput = (e) => {
 };
 $("team").onchange = (e) => {
   state.team = e.target.value;
+  if (state.team) state.limit = "all";
   render();
 };
 $("csv").onclick = () => {

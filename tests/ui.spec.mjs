@@ -214,20 +214,24 @@ test("classement officiel, sélections, fiche, CSV et défilement", async ({
   const data = await (await request.get("/data.json")).json();
   await page.goto("/");
   const rows = page.locator("tbody tr");
-  await expect(page.getByRole("button", { name: "Tous", exact: true })).toHaveAttribute("aria-pressed", "true");
+  const allPlayers = page.getByRole("button", { name: "Tous", exact: true });
+  const teamFilter = page.getByLabel("Filtrer par équipe");
+  const lastPlayer = data.players.at(-1);
+  const teamPlayers = data.players.filter((p) => p.teamId === lastPlayer.teamId);
+  await expect(allPlayers).toHaveAttribute("aria-pressed", "true");
   await expect(rows).toHaveCount(data.players.length);
   await expect(rows.first()).toContainText(data.players[0].name);
   for (const n of [10, 25, 50]) {
     await page.getByRole("button", { name: "Top " + n, exact: true }).click();
     await expect(rows).toHaveCount(Math.min(n, data.players.length));
+    await teamFilter.selectOption(lastPlayer.teamId);
+    await expect(allPlayers).toHaveAttribute("aria-pressed", "true");
+    await expect(rows.locator('td[data-key="name"]')).toHaveText(teamPlayers.map((p) => p.name));
+    await teamFilter.selectOption("");
+    await expect(rows).toHaveCount(data.players.length);
   }
-  await page.getByRole("button", { name: "Tous", exact: true }).click();
-  await expect(rows).toHaveCount(data.players.length);
   const p = data.players[0];
-  await page.getByLabel("Filtrer par équipe").selectOption(p.teamId);
-  await expect(rows).toHaveCount(
-    data.players.filter((x) => x.teamId === p.teamId).length,
-  );
+  await teamFilter.selectOption(p.teamId);
   await page.getByLabel("Rechercher un joueur").fill(p.name);
   await rows.first().getByRole("button").click();
   await expect(page.getByRole("dialog")).toContainText(p.name);
@@ -238,7 +242,7 @@ test("classement officiel, sélections, fiche, CSV et défilement", async ({
     p.name,
   );
   await page.getByLabel("Rechercher un joueur").fill("");
-  await page.getByLabel("Filtrer par équipe").selectOption("");
+  await teamFilter.selectOption("");
   await page
     .getByRole("button", { name: "Trier par points par match", exact: true })
     .click();
@@ -368,7 +372,7 @@ test("les liens de vue se copient et la navigation conserve les filtres", async 
   await expect(page.locator("tbody tr")).toHaveCount(1);
   await expect(page.getByLabel("Rechercher un joueur")).toHaveValue(p.name);
   await expect(page.getByLabel("Filtrer par équipe")).toHaveValue(p.teamId);
-  await expect(page.getByRole("button", { name: "Top 10", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "Tous", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator('th[data-key="points"]')).toHaveAttribute("aria-sort", "descending");
   await page.goForward();
   await page.reload({ waitUntil: "domcontentloaded" });
