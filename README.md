@@ -1,6 +1,8 @@
 # RSEQ Basketball D2
 
-**Site du classement** — <https://martbedard.github.io/RSEQ_Basket_D2_Top50/>
+Le projet continue dans [RSEQ Basketball Plus](https://github.com/martbedard/RSEQ_Basketball_Plus). Ce dépôt héberge la redirection du lien historique.
+
+**Site du classement** — <https://martbedard.github.io/RSEQ_Basketball_Plus/>
 
 [Exécutions GitHub Actions](https://github.com/martbedard/RSEQ_Basket_D2_Top50/actions/workflows/classement.yml) · [Calendrier officiel RSEQ](https://www.rseq-stats.ca/collegial/ne/basketball-m-d2/)
 
